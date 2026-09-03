@@ -1,0 +1,58 @@
+name: Sync Strava data
+
+on:
+  schedule:
+    # 05:00 UTC daily (~06:00 during UK winter/GMT, ~06:00 summer too
+    # since UK clocks also spring forward - adjust the hour below if
+    # you'd rather it run at a different time of day).
+    - cron: '0 5 * * *'
+  # Lets you trigger a sync on demand from the "Actions" tab on GitHub,
+  # instead of waiting for the next scheduled run.
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Refresh Strava access token
+        env:
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+        run: node scripts/refresh-token.js
+
+      # Runs even if a later step fails. Strava invalidates the old
+      # refresh token the moment it issues a new one, so this new one
+      # MUST be saved before we risk anything else going wrong -
+      # otherwise every future run would be permanently locked out.
+      - name: Rotate the stored refresh token
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -f scripts/.new-refresh-token ]; then
+            gh secret set STRAVA_REFRESH_TOKEN --repo "${{ github.repository }}" < scripts/.new-refresh-token
+            echo "Refresh token rotated."
+          else
+            echo "No new refresh token was produced - skipping rotation."
+          fi
+
+      - name: Fetch latest activities
+        run: node scripts/fetch-activities.js
+
+      - name: Commit updated activity data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/activities.json
+          git diff --staged --quiet || git commit -m "Sync Strava activities"
+          git push

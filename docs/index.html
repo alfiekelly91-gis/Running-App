@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Strava Dashboard</title>
+
+  <!-- Leaflet: draws the interactive map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js: draws the distance-over-time bar chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <h1>🏃 My Strava Dashboard</h1>
+    <span id="last-synced"></span>
+  </header>
+
+  <main id="app">
+    <!-- Shown until the first scheduled GitHub Action run has produced data -->
+    <section id="empty-state" class="card hidden">
+      <h2>No data yet</h2>
+      <p id="empty-message">
+        This dashboard reads from a file that a GitHub Action updates once a day.
+        It hasn't run yet, so there's nothing to show.
+      </p>
+      <p>You can trigger it manually from your repo's <strong>Actions</strong> tab
+        (pick the "Sync Strava data" workflow → "Run workflow"), or just wait for
+        the next scheduled run.</p>
+    </section>
+
+    <section id="dashboard" class="hidden">
+
+      <div class="toolbar">
+        <div>
+          <label for="type-filter">Activity type:</label>
+          <select id="type-filter">
+            <option value="all">All</option>
+          </select>
+        </div>
+      </div>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-count">0</div>
+          <div class="stat-label">Activities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-distance">0</div>
+          <div class="stat-label">Total distance (km)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-time">0</div>
+          <div class="stat-label">Total moving time (h)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-elevation">0</div>
+          <div class="stat-label">Total elevation (m)</div>
+        </div>
+      </section>
+
+      <section class="panels">
+        <div class="card chart-card">
+          <h3>Distance per week (km)</h3>
+          <canvas id="distance-chart" height="220"></canvas>
+        </div>
+        <div class="card map-card">
+          <h3>Route map</h3>
+          <div id="map"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Recent activities</h3>
+        <div class="table-wrap">
+          <table id="activity-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Distance (km)</th>
+                <th>Time</th>
+                <th>Pace / speed</th>
+                <th>Elevation (m)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="activity-rows"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="polyline.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

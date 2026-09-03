@@ -1,0 +1,11 @@
+{
+  "name": "strava-dashboard",
+  "version": "2.0.0",
+  "description": "A personal Strava dashboard: static GitHub Pages site + a daily GitHub Action that syncs your activity data",
+  "private": true,
+  "scripts": {
+    "sync:refresh": "node scripts/refresh-token.js",
+    "sync:fetch": "node scripts/fetch-activities.js"
+  },
+  "license": "MIT"
+}

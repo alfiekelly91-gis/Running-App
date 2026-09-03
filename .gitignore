@@ -1,0 +1,5 @@
+node_modules/
+scripts/.access-token
+scripts/.new-refresh-token
+*.log
+.DS_Store
