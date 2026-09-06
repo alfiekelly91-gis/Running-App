@@ -1,6 +1,50 @@
 {
   "activities": [
     {
+      "id": 20051288028,
+      "name": "Hockey",
+      "type": "Run",
+      "sport_type": "Run",
+      "distance": 6440,
+      "moving_time": 3126,
+      "elapsed_time": 4493,
+      "total_elevation_gain": 47,
+      "start_date": "2026-09-05T15:10:52Z",
+      "start_date_local": "2026-09-05T16:10:52Z",
+      "average_speed": 2.06,
+      "max_speed": 6.28,
+      "average_heartrate": 168.4,
+      "max_heartrate": 187,
+      "kudos_count": 9,
+      "summary_polyline": "cdcbIdp{EC_@N?TdCEHVSNc@E]Aj@Kf@RCYAI_@@USRI@CSDIEi@By@Te@HPGWHB@GGh@GCTh@CLN\\C[GUOKJp@H?Aa@DB@TKHERDNDjBCWB[IoBFBR`@COCH[d@J@@NE@Vv@AWIOu@KBV?UJSLDBNHMBNQTMDXTOg@DT?JGBBAHRSiBBy@CLOFPBWz@BZJODc@YTFN`@VBHGEFl@I}BMw@DOF@CVDJGCHQAXHDQE_@b@D`@NFLm@FCIg@Wa@BXKCGNGCTLXjAHDBQ]w@Ga@Ac@LSJ~BHl@GVU??i@L]DABYB?BXDBAJJHWWe@MMy@HQUGKi@R^L`ALDNf@TTBLI??HHOPEW{@Hc@CICRJLMB]m@D@^tADVILML@{AOUI?A`AAWLHIB@LAuARDGIF@CYKVSvAP@OK@D?O?T\\tBQ]RPBHEU@e@SEGMMGFKEKFHAaAFOE]GHLzAHWHFE@KSEDAXA[`@KVWBOFN@c@WnA@bBDFEBJ}@SC?FD[Mm@Vb@CMWEBLGTLIFHN`AD?Kg@IKAODICJO_AHSGEDAFSQDEl@LDVv@I??EPKAHOOO@IKCQ\\^E~@QSAyASkBH?FXD|@G`@B|@L@BQ?RLLO@DBPIFU?WEWW`AC{@[ICMDUEKDg@GUATHZCDJBJNHb@D?@NLXY?Qo@QHLWHJT_@PESFB`@FGK~@EOe@YQiAL_@A`A`@|AQ_@AQBCPV@OAJKQk@FFLNQTRGFFv@?MGOPXTm@HGNPAFCI@OMUAWKFIRQdA?YEGFZRDHLIQg@YMk@?KFJ?JLyAAu@D`@Ec@V\\VUKDIPJr@KTTz@JT]_@CYD@AVLBCo@HCSMEBCJAs@EMPjBOECiAB[HC_@LCL`@^F@AGM?BAAJH\\n@^IGCj@YMUHCGD]AoAMn@C|@D@Na@Bs@B?JFDVZ`@Zt@Yi@i@]AUMIESDL?`ARN@NEm@KSJa@Uo@Ec@ZrBFKCN@hBYBEOMEF@@KTEb@_@CUFLFAOAUQ[wBG?FtBB@@w@DONFEhADROWGFH??m@LKRe@q@s@JJ?\\BULT@XKE]j@TjANRRJJIDQe@{@KyACMAl@C}@CBJN@G\\R]QD^MQVKHJIx@CDKWFvBDJDABm@ELIMe@v@CQ^i@Ng@C[KMq@_@@Rj@vANHHt@FJMYEJ?KNYNsAJW",
+      "start_latlng": [
+        52.941623,
+        -1.129144
+      ]
+    },
+    {
+      "id": 20042886998,
+      "name": "Black Rocks parkrun with Claire and Dad",
+      "type": "Run",
+      "sport_type": "Run",
+      "distance": 4996.7,
+      "moving_time": 1637,
+      "elapsed_time": 1637,
+      "total_elevation_gain": 7,
+      "start_date": "2026-09-05T08:02:55Z",
+      "start_date_local": "2026-09-05T09:02:55Z",
+      "average_speed": 3.052,
+      "max_speed": 4.583,
+      "average_heartrate": 147.2,
+      "max_heartrate": 158,
+      "kudos_count": 15,
+      "summary_polyline": "ovacIpxpHk@Ye@q@i@iBM{@MqBLyCGuBOsBCgASg@UWe@q@Wm@U[k@}AWe@Si@w@sAg@kA[k@m@_BW{@Ow@G}@GqBKqBOw@i@cFSkCMq@g@}AIy@MmB@QD\\LpCVtAd@zDXhBHlAThBXdElApFXr@Rt@jApCtAjCdBdE\\xCTrCLv@Dv@EVHt@N`ALhAJp@Rx@|@lBr@x@~@rAbAhA`@l@t@x@f@x@Zp@Tp@FZl@jDt@pDj@|BZp@JP\\\\ZTFHlB|ANTVh@lAvH\\dC`@tDb@bCNxA`@fDNjCABEEGw@A_CKkAe@{DgAwG]uC_AiFYo@]g@kBqAi@e@]_@Ok@Yq@[_BiAiGg@yDOa@Wi@cAaAYa@Wi@a@c@a@YaAeA]Ym@a@a@_@[g@q@oCQmGK{BC}AIw@aBkF[m@a@qAc@}@tAzCt@nBRx@h@hEBd@ThCRjDRfBThATn@\\d@",
+      "start_latlng": [
+        53.098164,
+        -1.565687
+      ]
+    },
+    {
       "id": 20004320381,
       "name": "Lunch Run",
       "type": "Run",
@@ -41566,5 +41610,5 @@
       ]
     }
   ],
-  "lastSyncedAt": 1788584621251
+  "lastSyncedAt": 1788671042914
 }
