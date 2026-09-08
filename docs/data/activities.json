@@ -1,6 +1,28 @@
 {
   "activities": [
     {
+      "id": 20077208983,
+      "name": "Afternoon Run",
+      "type": "Run",
+      "sport_type": "Run",
+      "distance": 5004.2,
+      "moving_time": 1541,
+      "elapsed_time": 1541,
+      "total_elevation_gain": 10,
+      "start_date": "2026-09-07T16:30:58Z",
+      "start_date_local": "2026-09-07T17:30:58Z",
+      "average_speed": 3.247,
+      "max_speed": 4.157,
+      "average_heartrate": 155.2,
+      "max_heartrate": 166,
+      "kudos_count": 4,
+      "summary_polyline": "uhbbIfqxEO?_AK_AY]k@K?c@Dm@PcCXmAJe@?e@DuCL[VCd@\\vCBb@GJg@PKB}@@QE_@UqAOgCs@uASw@G{@wDMu@k@qGGmACgCBwDF{@XuCb@gB`EmMpAaFx@eEr@wELsANuCJ}BBuAEsB?eBMqBMgAQw@g@eBEo@Ny@Ce@Sm@WYQ[S}@C{@D{@Ts@`@y@v@sBVe@VHf@^Zd@Tl@Jh@DlC@fGB|CNfAb@dB~@|Cd@rDZ~ATv@XbCTfAHx@Bx@XdC`B|FTh@`AfB\\j@fAt@f@V`@Jf@Dr@C^GbA_@vA]b@Gp@An@Db@Dt@Nn@Rb@RfAt@n@p@pBfCr@n@fAn@d@TtC|@HBb@Eh@@b@NBFPv@LfAF`BP~BBdACj@y@@gAf@q@n@g@n@_@~@c@hBMx@o@`D]fDc@`D[bD",
+      "start_latlng": [
+        52.934451,
+        -1.113414
+      ]
+    },
+    {
       "id": 20051288028,
       "name": "Hockey",
       "type": "Run",
@@ -41610,5 +41632,5 @@
       ]
     }
   ],
-  "lastSyncedAt": 1788757438256
+  "lastSyncedAt": 1788843832602
 }
