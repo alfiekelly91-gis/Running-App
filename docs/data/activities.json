@@ -1,6 +1,28 @@
 {
   "activities": [
     {
+      "id": 20100750538,
+      "name": "Lunch Run",
+      "type": "Run",
+      "sport_type": "Run",
+      "distance": 6003.9,
+      "moving_time": 1608,
+      "elapsed_time": 1608,
+      "total_elevation_gain": 8,
+      "start_date": "2026-09-09T10:13:49Z",
+      "start_date_local": "2026-09-09T11:13:49Z",
+      "average_speed": 3.734,
+      "max_speed": 5.5,
+      "average_heartrate": 143,
+      "max_heartrate": 175,
+      "kudos_count": 9,
+      "summary_polyline": "whbbIjpxEa@DcASY?IC[g@EAuBVe@Jo@D_APqAH}ARgAFe@HOV?\\H|@^pB\\jCXlDCpAS|ACp@@z@XnCF~BTxCFxB`@lEd@nCFPBZW~@CDMBg@GuAj@a@BcAQ}Ao@wBc@CEKk@TuCDcADeEGaAOwAMoC_AyJm@qEO{@Om@OeAa@sBiA}EWsBa@gFGkF@mALoBPmBN{@~AeFt@mChB_GVcApAiGf@iDX}CR_G?cBGiAAsAYmEa@qBk@_CUw@Wu@_AeBQQoA{@mBqBKMOq@Du@Xq@j@c@f@Il@Bv@FrABdCXf@NLH\\h@Xn@Hj@DnFFtFN~AfAzFXnBfBpHX`CJdCj@nDZx@N|@j@vBPf@\\p@^l@d@l@zAt@t@VTBn@@f@AtCq@l@KZAhABp@HVDzA`@p@ZXTj@j@rA~Aj@l@r@t@l@`@n@V^Xv@TbATxAFTD^ZBHHz@F`A@z@PdBBzAEv@W?[D{@f@q@l@",
+      "start_latlng": [
+        52.934396,
+        -1.11349
+      ]
+    },
+    {
       "id": 20077208983,
       "name": "Afternoon Run",
       "type": "Run",
@@ -41632,5 +41654,5 @@
       ]
     }
   ],
-  "lastSyncedAt": 1788930235265
+  "lastSyncedAt": 1789016634103
 }
