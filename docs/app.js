@@ -9,6 +9,7 @@ let allActivities = [];
 let map;
 let mapLayerGroup;
 let chart;
+let yearChart;
 let hasSetInitialFilter = false;
 
 const el = (id) => document.getElementById(id);
@@ -38,9 +39,11 @@ async function main() {
   updateLastSynced(data.lastSyncedAt);
   el('dashboard').classList.remove('hidden');
   populateTypeFilter();
+  populateYearFilter();
   renderAll();
 
   el('type-filter').addEventListener('change', renderAll);
+  el('year-filter').addEventListener('change', renderAll);
 }
 
 function showEmptyState(message) {
@@ -75,16 +78,46 @@ function populateTypeFilter() {
   }
 }
 
-function getFilteredActivities() {
+function populateYearFilter() {
+  const select = el('year-filter');
+  const previousValue = select.value || 'all';
+  // Newest first, matching how a year picker is normally ordered.
+  const years = Array.from(new Set(allActivities.map(yearOf))).sort((a, b) => b - a);
+
+  select.innerHTML = '<option value="all">All</option>' +
+    years.map((y) => `<option value="${y}">${y}</option>`).join('');
+
+  if (years.includes(Number(previousValue)) || previousValue === 'all') {
+    select.value = previousValue;
+  }
+}
+
+function yearOf(activity) {
+  return new Date(activity.start_date_local || activity.start_date).getFullYear();
+}
+
+function getTypeFilteredActivities() {
   const type = el('type-filter').value;
   if (type === 'all') return allActivities;
   return allActivities.filter((a) => a.type === type);
 }
 
+function getFilteredActivities() {
+  const typeFiltered = getTypeFilteredActivities();
+  const year = el('year-filter').value;
+  if (year === 'all') return typeFiltered;
+  return typeFiltered.filter((a) => yearOf(a) === Number(year));
+}
+
 function renderAll() {
+  const typeFiltered = getTypeFilteredActivities();
   const activities = getFilteredActivities();
+  const yearValue = el('year-filter').value;
+  const selectedYear = yearValue === 'all' ? null : Number(yearValue);
+
   renderStats(activities);
-  renderChart(activities);
+  renderWeeklyChart(activities, selectedYear);
+  renderYearChart(typeFiltered);
   renderMap(activities);
   renderTable(activities);
 }
@@ -106,7 +139,10 @@ function sum(items, fn) {
 
 // --- Chart: total distance per week -----------------------------------
 
-function renderChart(activities) {
+// With no year selected: the trailing 26 weeks, ending this week. With a
+// year selected: every week of that year, so the chart matches what
+// you're actually filtered to instead of showing an unrelated window.
+function renderWeeklyChart(activities, year) {
   const weekly = new Map(); // key: "YYYY-MM-DD" (Monday of that week) -> km
 
   for (const activity of activities) {
@@ -115,19 +151,13 @@ function renderChart(activities) {
     weekly.set(key, (weekly.get(key) || 0) + activity.distance / 1000);
   }
 
-  // Build a continuous run of the last 26 weeks, ending with this week,
-  // so weeks with no activity show up as a 0 km bar instead of just
-  // vanishing from the chart (which used to make gaps look compressed).
-  const WEEKS_TO_SHOW = 26;
-  const thisMonday = mondayOf(new Date());
-  const recentWeeks = [];
-  for (let i = WEEKS_TO_SHOW - 1; i >= 0; i--) {
-    const monday = new Date(thisMonday);
-    monday.setDate(monday.getDate() - i * 7);
-    recentWeeks.push(monday.toISOString().slice(0, 10));
-  }
-  const labels = recentWeeks.map((w) => formatWeekLabel(w));
-  const values = recentWeeks.map((w) => Math.round((weekly.get(w) || 0) * 10) / 10);
+  const weeks = year ? weeksOfYear(year) : trailingWeeks(26);
+  const labels = weeks.map((w) => formatWeekLabel(w));
+  const values = weeks.map((w) => Math.round((weekly.get(w) || 0) * 10) / 10);
+
+  el('weekly-chart-title').textContent = year
+    ? `Distance per week - ${year} (km)`
+    : 'Distance per week (km)';
 
   const ctx = el('distance-chart').getContext('2d');
   if (chart) chart.destroy();
@@ -149,6 +179,35 @@ function renderChart(activities) {
   });
 }
 
+// A continuous run of `n` weeks (Mondays), ending with the current week.
+function trailingWeeks(n) {
+  const thisMonday = mondayOf(new Date());
+  const weeks = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const monday = new Date(thisMonday);
+    monday.setDate(monday.getDate() - i * 7);
+    weeks.push(monday.toISOString().slice(0, 10));
+  }
+  return weeks;
+}
+
+// Every week (Monday) that falls in the given calendar year. For the
+// current year this stops at this week, rather than running into weeks
+// that haven't happened yet.
+function weeksOfYear(year) {
+  const janFirstMonday = mondayOf(new Date(year, 0, 1));
+  const isCurrentYear = year === new Date().getFullYear();
+  const endMonday = isCurrentYear ? mondayOf(new Date()) : mondayOf(new Date(year, 11, 31));
+
+  const weeks = [];
+  const cursor = new Date(janFirstMonday);
+  while (cursor <= endMonday) {
+    weeks.push(cursor.toISOString().slice(0, 10));
+    cursor.setDate(cursor.getDate() + 7);
+  }
+  return weeks;
+}
+
 function mondayOf(date) {
   const d = new Date(date);
   const day = d.getDay(); // 0 = Sunday
@@ -161,6 +220,59 @@ function mondayOf(date) {
 function formatWeekLabel(isoDateString) {
   const d = new Date(isoDateString);
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// --- Chart: total distance per year -------------------------------------
+
+// Always shows every year (not affected by the year filter, since the
+// whole point is comparing years against each other) for whatever
+// activity type is currently selected. Years with no activity at all
+// still get a 0 km bar, same reasoning as the weekly chart.
+function renderYearChart(activities) {
+  const yearly = new Map(); // key: year (number) -> km
+
+  for (const activity of activities) {
+    const y = yearOf(activity);
+    yearly.set(y, (yearly.get(y) || 0) + activity.distance / 1000);
+  }
+
+  const canvas = el('year-chart');
+  if (yearly.size === 0) {
+    if (yearChart) {
+      yearChart.destroy();
+      yearChart = null;
+    }
+    return;
+  }
+
+  const yearsPresent = Array.from(yearly.keys());
+  const minYear = Math.min(...yearsPresent);
+  const maxYear = Math.max(new Date().getFullYear(), ...yearsPresent);
+
+  const years = [];
+  for (let y = minYear; y <= maxYear; y++) years.push(y);
+
+  const labels = years.map(String);
+  const values = years.map((y) => Math.round((yearly.get(y) || 0) * 10) / 10);
+
+  const ctx = canvas.getContext('2d');
+  if (yearChart) yearChart.destroy();
+  yearChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Distance (km)',
+        data: values,
+        backgroundColor: '#fc4c02', // same metric as the weekly chart, same color
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } },
+    },
+  });
 }
 
 // --- Map: every route overlaid ------------------------------------------

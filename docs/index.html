@@ -43,6 +43,12 @@
             <option value="all">All</option>
           </select>
         </div>
+        <div>
+          <label for="year-filter">Year:</label>
+          <select id="year-filter">
+            <option value="all">All</option>
+          </select>
+        </div>
       </div>
 
       <section class="stats-grid">
@@ -64,9 +70,14 @@
         </div>
       </section>
 
+      <section class="card">
+        <h3 id="year-chart-title">Distance by year (km)</h3>
+        <canvas id="year-chart" height="180"></canvas>
+      </section>
+
       <section class="panels">
         <div class="card chart-card">
-          <h3>Distance per week (km)</h3>
+          <h3 id="weekly-chart-title">Distance per week (km)</h3>
           <canvas id="distance-chart" height="220"></canvas>
         </div>
         <div class="card map-card">
