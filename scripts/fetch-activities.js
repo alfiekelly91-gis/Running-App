@@ -11,6 +11,7 @@ const path = require('path');
 
 const ACCESS_TOKEN_PATH = path.join(__dirname, '.access-token');
 const DATA_PATH = path.join(__dirname, '..', 'docs', 'data', 'activities.json');
+const LATEST_RUN_PATH = path.join(__dirname, '..', 'docs', 'data', 'latest-run.json');
 
 function readCache() {
   try {
@@ -74,6 +75,62 @@ async function fetchNewActivities(accessToken, after) {
   return results;
 }
 
+// Fetches the GPS/pace/heart-rate streams for a single activity - the
+// detailed, point-by-point data (not included in the activity list
+// endpoint) that the "Latest run" map needs to draw a route coloured by
+// pace. `resolution=medium` caps it at ~1000 points, which keeps the
+// file small while still looking smooth on a map.
+async function fetchStreams(accessToken, activityId) {
+  const keys = 'latlng,distance,time,heartrate,altitude,moving';
+  const res = await fetch(
+    `https://www.strava.com/api/v3/activities/${activityId}/streams?keys=${keys}&key_by_type=true&resolution=medium`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Streams request failed with status ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// Refreshes docs/data/latest-run.json for the map + stats. Deliberately
+// best-effort: this is a nice-to-have on top of the main activity sync,
+// so any failure here (no GPS data, rate limited, activity deleted,
+// etc.) is logged and swallowed rather than failing the whole job -
+// yesterday's file (if any) is just left as-is.
+async function syncLatestRun(accessToken, activities) {
+  const latestRun = activities.find((a) => a.type === 'Run');
+  if (!latestRun) {
+    console.log('No runs found yet - skipping latest-run.json.');
+    return;
+  }
+
+  const streams = await fetchStreams(accessToken, latestRun.id);
+
+  if (!streams.latlng || !streams.latlng.data || streams.latlng.data.length === 0) {
+    console.log(`Latest run (${latestRun.id}) has no GPS data - skipping latest-run.json.`);
+    return;
+  }
+
+  const payload = {
+    activity: latestRun,
+    streams: {
+      latlng: streams.latlng.data,
+      distance: streams.distance ? streams.distance.data : null,
+      time: streams.time ? streams.time.data : null,
+      heartrate: streams.heartrate ? streams.heartrate.data : null,
+      altitude: streams.altitude ? streams.altitude.data : null,
+      moving: streams.moving ? streams.moving.data : null,
+    },
+    fetchedAt: Date.now(),
+  };
+
+  fs.mkdirSync(path.dirname(LATEST_RUN_PATH), { recursive: true });
+  fs.writeFileSync(LATEST_RUN_PATH, JSON.stringify(payload));
+  console.log(`Saved latest-run.json for activity ${latestRun.id} (${streams.latlng.data.length} points).`);
+}
+
 async function main() {
   const accessToken = fs.readFileSync(ACCESS_TOKEN_PATH, 'utf8').trim();
   const cache = readCache();
@@ -103,6 +160,12 @@ async function main() {
   );
 
   console.log(`Fetched ${fetched.length} activities from Strava; ${activities.length} total cached.`);
+
+  try {
+    await syncLatestRun(accessToken, activities);
+  } catch (err) {
+    console.error('Latest-run sync failed (non-fatal):', err.message);
+  }
 }
 
 main().catch((err) => {

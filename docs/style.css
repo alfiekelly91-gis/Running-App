@@ -130,6 +130,48 @@ select {
   z-index: 0;
 }
 
+.latest-run-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.latest-run-name { font-size: 18px; font-weight: 700; }
+.latest-run-date { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+#latest-run-map {
+  height: 320px;
+  border-radius: 8px;
+  z-index: 0;
+  margin-top: 4px;
+}
+
+.pace-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pace-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pace-legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
 .table-wrap { overflow-x: auto; }
 
 table { width: 100%; border-collapse: collapse; font-size: 14px; }

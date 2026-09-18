@@ -10,6 +10,8 @@ let map;
 let mapLayerGroup;
 let chart;
 let yearChart;
+let latestRunMap;
+let latestRunLayerGroup;
 let hasSetInitialFilter = false;
 
 const el = (id) => document.getElementById(id);
@@ -41,6 +43,7 @@ async function main() {
   populateTypeFilter();
   populateYearFilter();
   renderAll();
+  loadLatestRun();
 
   el('type-filter').addEventListener('change', renderAll);
   el('year-filter').addEventListener('change', renderAll);
@@ -362,6 +365,171 @@ function formatPaceOrSpeed(activity) {
   }
   const kmh = (activity.average_speed || 0) * 3.6;
   return `${kmh.toFixed(1)} km/h`;
+}
+
+// --- Latest run: map coloured by pace, plus its own stats -----------------
+
+// Fastest -> slowest. A standard "traffic light" ramp (green through red)
+// is the convention runners expect from pace-zone maps, computed relative
+// to this run's own pace range rather than a fixed target you'd have to
+// configure.
+const PACE_ZONE_COLORS = ['#1a9850', '#91cf60', '#fee08b', '#fc8d59', '#d73027'];
+
+async function loadLatestRun() {
+  try {
+    const res = await fetch(`data/latest-run.json?t=${Date.now()}`);
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    const data = await res.json();
+    renderLatestRun(data);
+  } catch (err) {
+    // Nothing synced yet, or the file doesn't exist - just show the
+    // empty message rather than treating it as a hard error.
+    el('latest-run-empty').classList.remove('hidden');
+  }
+}
+
+function renderLatestRun(data) {
+  const activity = data && data.activity;
+  const streams = data && data.streams;
+
+  if (!activity || !streams || !streams.latlng || streams.latlng.length === 0) {
+    el('latest-run-empty').classList.remove('hidden');
+    return;
+  }
+
+  el('latest-run-body').classList.remove('hidden');
+  el('latest-run-name').textContent = activity.name;
+  el('latest-run-date').textContent = new Date(
+    activity.start_date_local || activity.start_date
+  ).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  el('latest-run-link').href = `https://www.strava.com/activities/${activity.id}`;
+
+  renderLatestRunStats(activity);
+  renderLatestRunMap(streams);
+}
+
+function renderLatestRunStats(activity) {
+  const cards = [
+    { value: (activity.distance / 1000).toFixed(2), label: 'Distance (km)' },
+    { value: formatDuration(activity.moving_time), label: 'Moving time' },
+    { value: formatPaceOrSpeed(activity), label: 'Avg pace' },
+    { value: Math.round(activity.total_elevation_gain || 0), label: 'Elevation (m)' },
+  ];
+  if (activity.average_heartrate) {
+    cards.push({ value: Math.round(activity.average_heartrate), label: 'Avg HR (bpm)' });
+  }
+  if (activity.max_heartrate) {
+    cards.push({ value: Math.round(activity.max_heartrate), label: 'Max HR (bpm)' });
+  }
+
+  el('latest-run-stats').innerHTML = cards
+    .map(
+      (c) => `
+      <div class="stat-card">
+        <div class="stat-value">${c.value}</div>
+        <div class="stat-label">${c.label}</div>
+      </div>`
+    )
+    .join('');
+}
+
+function renderLatestRunMap(streams) {
+  const latlng = streams.latlng;
+  const distance = streams.distance;
+  const time = streams.time;
+
+  if (!latestRunMap) {
+    latestRunMap = L.map('latest-run-map');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(latestRunMap);
+    latestRunLayerGroup = L.layerGroup().addTo(latestRunMap);
+  }
+  latestRunLayerGroup.clearLayers();
+
+  // Pace (seconds per km) for the segment between each pair of
+  // consecutive points, where we have both a distance and time stream.
+  const segmentPaces = [];
+  for (let i = 1; i < latlng.length; i++) {
+    let pace = null;
+    if (distance && time && distance[i] != null && distance[i - 1] != null && time[i] != null && time[i - 1] != null) {
+      const dDist = distance[i] - distance[i - 1];
+      const dTime = time[i] - time[i - 1];
+      if (dDist > 0 && dTime > 0) pace = dTime / (dDist / 1000);
+    }
+    segmentPaces.push(pace);
+  }
+
+  // Zone edges come from this run's own pace distribution (5th-95th
+  // percentile, so a GPS blip or a traffic-light stop doesn't stretch
+  // the scale), split into 5 equal-width bands from fastest to slowest.
+  const validPaces = segmentPaces.filter((p) => p != null && p > 0 && p < 1200).sort((a, b) => a - b);
+  const zoneEdges = validPaces.length > 0 ? paceZoneEdges(validPaces) : null;
+
+  const bounds = [];
+  for (let i = 1; i < latlng.length; i++) {
+    const pace = segmentPaces[i - 1];
+    const color = zoneEdges && pace != null ? PACE_ZONE_COLORS[paceZoneIndex(pace, zoneEdges)] : '#636e72';
+    latestRunLayerGroup.addLayer(
+      L.polyline([latlng[i - 1], latlng[i]], { color, weight: 4, opacity: 0.85 })
+    );
+  }
+  bounds.push(...latlng);
+
+  if (bounds.length > 0) {
+    latestRunMap.fitBounds(bounds, { padding: [20, 20] });
+  }
+
+  renderPaceLegend(zoneEdges);
+}
+
+function paceZoneEdges(sortedPaces) {
+  const p5 = percentile(sortedPaces, 0.05);
+  const p95 = percentile(sortedPaces, 0.95);
+  const span = Math.max(p95 - p5, 1);
+  const edges = [0, 1, 2, 3, 4].map((i) => p5 + (span * i) / 5);
+  edges.push(p5 + span);
+  return edges; // 6 edges bounding 5 zones
+}
+
+function paceZoneIndex(pace, edges) {
+  for (let i = 0; i < 5; i++) {
+    if (pace <= edges[i + 1]) return i;
+  }
+  return 4;
+}
+
+function percentile(sortedArr, p) {
+  const idx = (sortedArr.length - 1) * p;
+  const lo = Math.floor(idx);
+  const hi = Math.ceil(idx);
+  if (lo === hi) return sortedArr[lo];
+  return sortedArr[lo] + (sortedArr[hi] - sortedArr[lo]) * (idx - lo);
+}
+
+function renderPaceLegend(zoneEdges) {
+  const legend = el('pace-legend');
+  if (!zoneEdges) {
+    legend.innerHTML = '';
+    return;
+  }
+
+  const items = [];
+  for (let i = 0; i < 5; i++) {
+    items.push(`
+      <span class="pace-legend-item">
+        <span class="pace-legend-swatch" style="background:${PACE_ZONE_COLORS[i]}"></span>
+        ${formatPaceSec(zoneEdges[i])}–${formatPaceSec(zoneEdges[i + 1])} /km
+      </span>`);
+  }
+  legend.innerHTML = '<span>Pace:</span>' + items.join('');
+}
+
+function formatPaceSec(secPerKm) {
+  const min = Math.floor(secPerKm / 60);
+  const sec = Math.round(secPerKm % 60);
+  return `${min}:${String(sec).padStart(2, '0')}`;
 }
 
 function escapeHtml(str) {

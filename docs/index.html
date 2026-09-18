@@ -51,6 +51,26 @@
         </div>
       </div>
 
+      <section class="card" id="latest-run-card">
+        <h3>Latest run</h3>
+        <p id="latest-run-empty" class="hidden">No runs with GPS data yet.</p>
+        <div id="latest-run-body" class="hidden">
+          <div class="latest-run-header">
+            <div>
+              <div class="latest-run-name" id="latest-run-name"></div>
+              <div class="latest-run-date" id="latest-run-date"></div>
+            </div>
+            <a id="latest-run-link" href="#" target="_blank" rel="noopener" class="btn-text">View on Strava</a>
+          </div>
+
+          <div class="stats-grid" id="latest-run-stats"></div>
+
+          <div id="latest-run-map"></div>
+
+          <div class="pace-legend" id="pace-legend"></div>
+        </div>
+      </section>
+
       <section class="stats-grid">
         <div class="stat-card">
           <div class="stat-value" id="stat-count">0</div>
