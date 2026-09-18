@@ -115,11 +115,19 @@ function renderChart(activities) {
     weekly.set(key, (weekly.get(key) || 0) + activity.distance / 1000);
   }
 
-  const sortedWeeks = Array.from(weekly.keys()).sort();
-  // Only show the most recent 26 weeks so the chart stays readable.
-  const recentWeeks = sortedWeeks.slice(-26);
+  // Build a continuous run of the last 26 weeks, ending with this week,
+  // so weeks with no activity show up as a 0 km bar instead of just
+  // vanishing from the chart (which used to make gaps look compressed).
+  const WEEKS_TO_SHOW = 26;
+  const thisMonday = mondayOf(new Date());
+  const recentWeeks = [];
+  for (let i = WEEKS_TO_SHOW - 1; i >= 0; i--) {
+    const monday = new Date(thisMonday);
+    monday.setDate(monday.getDate() - i * 7);
+    recentWeeks.push(monday.toISOString().slice(0, 10));
+  }
   const labels = recentWeeks.map((w) => formatWeekLabel(w));
-  const values = recentWeeks.map((w) => Math.round(weekly.get(w) * 10) / 10);
+  const values = recentWeeks.map((w) => Math.round((weekly.get(w) || 0) * 10) / 10);
 
   const ctx = el('distance-chart').getContext('2d');
   if (chart) chart.destroy();
