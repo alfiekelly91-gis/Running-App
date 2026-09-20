@@ -1,6 +1,28 @@
 {
   "activities": [
     {
+      "id": 20237434994,
+      "name": "Park walking",
+      "type": "Hike",
+      "sport_type": "Hike",
+      "distance": 5219.1,
+      "moving_time": 4550,
+      "elapsed_time": 4634,
+      "total_elevation_gain": 9,
+      "start_date": "2026-09-19T08:00:38Z",
+      "start_date_local": "2026-09-19T09:00:38Z",
+      "average_speed": 1.147,
+      "max_speed": 2.06,
+      "average_heartrate": 92.7,
+      "max_heartrate": 119,
+      "kudos_count": 16,
+      "summary_polyline": "qrcbIzjuETL@ADL`@f@Xh@h@x@Nh@hA`CHf@H~@E^D|AP~BLfAGr@Qv@q@tE]rCMf@_@x@ShAGfACJE~AIIKq@IcAQcA]_Aq@{@SSc@Wk@q@Ui@WoAM[w@yCMSKU]a@a@EUSg@WWWQk@EWKYKMIa@_@w@_@aAa@Om@Ya@]OQIE_AFg@`@u@FOB]A_@E[MQQQ_@IG]_AEEAGc@w@k@oAKo@CIQ[e@o@SgACSc@aBe@q@KIs@Kk@BUEQ[WeAC}@Gk@Ma@QUSEu@EU@_@EKE[e@i@oAI_@Si@K}@GMMc@C[D_ACk@BUA_@TsAh@gANk@@UDMNwBGoA\\eCJ_@d@eAv@s@j@}@j@k@NO^Uh@g@lAY^OTQB@n@SXCd@QJ@n@j@f@nBGz@\\zCVv@\\^PNl@t@`@jADV`@dAOv@Eb@HzBExAPdALfDJj@@`@Nj@Hf@Vd@DXRb@h@x@hApAT\\`DjHT\\ZFNIdAmAXUNUv@m@JQNKLDTVb@tAd@bAv@l@b@f@Vj@JZ\\p@PTj@tAv@rADND`@?`@IvAFjB?`@LhADp@C~@O`A]jAKn@Gv@M^Mz@KhAUd@G`@?NC`@Kj@Gn@Dr@OdAONOyAaAaEa@g@i@g@YQs@gASg@e@w@Ge@A[M_AO[WaAQg@u@gBBc@Is@EsAFo@Aa@FQNUFWTa@BA?ECAGB?BCA@DF?",
+      "start_latlng": [
+        52.943935,
+        -1.097576
+      ]
+    },
+    {
       "id": 20116324734,
       "name": "Lunch Run",
       "type": "Run",
@@ -41676,5 +41698,5 @@
       ]
     }
   ],
-  "lastSyncedAt": 1789794227673
+  "lastSyncedAt": 1789880634679
 }
